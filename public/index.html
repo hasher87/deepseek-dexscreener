@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="dark">
+<head>
+    <title>Crypto Token Analysis</title>
+    <!-- Required Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Preline CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@preline/style@1.8.0/dist/preline.min.css">
+    <style>
+        /* Custom Terminal Overrides */
+        body {
+            background: #000 !important;
+            color: #00ff00 !important;
+            font-family: 'VT323', monospace !important;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 2.5rem !important;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* CRT Effect */
+        .crt::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.05) 0px,
+                rgba(0, 255, 0, 0.05) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Custom Form Elements */
+        input {
+            background: #001100 !important;
+            border: 1px solid #00ff00 !important;
+            color: #00ff00 !important;
+            padding: 0.75rem 1rem !important;
+            border-radius: 0 !important;
+            font-size: 1.1rem;
+        }
+
+        button {
+            background: #002200 !important;
+            border: 1px solid #00ff00 !important;
+            color: #00ff00 !important;
+            padding: 0.8rem 1.5rem !important;
+            transition: all 0.3s ease !important;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        button:hover {
+            background: #004400 !important;
+            box-shadow: 0 0 10px #00ff00 !important;
+        }
+
+        button span {
+            position: relative;
+            z-index: 2;
+        }
+
+        #result {
+            background: #000 !important;
+            border: 1px solid #00ff00 !important;
+            color: #00ff00 !important;
+            font-size: 1rem;
+            line-height: 1.3;
+            padding: 1.5rem;
+            border-width: 2px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            hyphens: auto;
+            max-width: 100%;
+            overflow-x: hidden;
+            font-family: 'VT323', monospace;
+            letter-spacing: 0.5px;
+            tab-size: 4;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: #001100;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border: 1px solid #002200;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .container {
+            max-width: 1400px;
+            padding: 2rem;
+        }
+
+        .input-panel {
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .glow-box {
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+
+        @keyframes glow {
+            0% { transform: rotate(45deg) translate(-50%, -50%); }
+            100% { transform: rotate(45deg) translate(50%, 50%); }
+        }
+
+        .button-text {
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            #result {
+                font-size: 0.9rem;
+                line-height: 1.2;
+                padding: 1rem;
+            }
+        }
+
+        /* Improve table readability */
+        #result {
+            font-family: 'Source Code Pro', monospace;
+            tab-size: 4;
+        }
+        
+        /* Add subtle grid lines */
+        #result::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(
+                to right,
+                rgba(0, 255, 0, 0.05) 1px,
+                transparent 1px
+            );
+            background-size: 20px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-black">
+    <div class="container mx-auto p-4 crt">
+        <h1 class="text-2xl mb-4 text-center border-b border-green-500 pb-2">
+            🚀 TOKEN ANALYSIS TERMINAL
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Input Panel -->
+            <div class="md:col-span-1 p-4 border border-green-500">
+                <div class="input-panel glow-box">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block mb-3 text-lg">🔍 PAIR ADDRESS</label>
+                            <input type="text" 
+                                   id="pairAddress" 
+                                   class="w-full text-lg"
+                                   placeholder="solana_pair_address">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="glow-box" onclick="runAnalysis('v1')">
+                                <span class="button-text">🚀 V1 SCAN</span>
+                            </button>
+                            <button class="glow-box bg-green-900/30" onclick="runAnalysis('v3')">
+                                <span class="button-text">💥 V3 SCAN</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Panel -->
+            <div class="md:col-span-3 p-4 h-[70vh] overflow-auto">
+                <pre id="result" class="text-sm"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preline JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@preline/auto-init@1.8.0/dist/auto-init.min.js"></script>
+    <script>
+        async function runAnalysis(version) {
+            const resultElement = document.getElementById('result');
+            // Use textContent instead of innerHTML
+            resultElement.textContent = 'Analyzing...';
+            
+            const pairAddress = document.getElementById('pairAddress').value;
+            
+            try {
+                const response = await fetch(`/analyze?version=${version}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pairAddress })
+                });
+                
+                const data = await response.json();
+                // Directly set text content with monospace formatting
+                resultElement.textContent = data.analysis;
+            } catch (error) {
+                resultElement.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html> 
