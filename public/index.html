@@ -1,231 +1,463 @@
 <!DOCTYPE html>
 <html class="dark">
 <head>
-    <title>Crypto Token Analysis</title>
-    <!-- Required Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Preline CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@preline/style@1.8.0/dist/preline.min.css">
+    <title>CyberDEX Analyzer</title>
+    <!-- FlyOnUI Framework -->
+    <link rel="stylesheet" href="https://cdn.flyonui.com/latest/flyonui.min.css">
+    <script src="https://cdn.flyonui.com/latest/flyonui.min.js"></script>
+    
+    <!-- Custom Cyber Terminal Styles -->
     <style>
-        /* Custom Terminal Overrides */
+        :root {
+            --fu-global-bg: #001100;
+            --fu-global-text: #00ff00;
+            --fu-global-border: 1px solid #00ff0055;
+            --fu-glitch-color-1: #ff00ff;
+            --fu-glitch-color-2: #00ffff;
+        }
+
         body {
-            background: #000 !important;
-            color: #00ff00 !important;
-            font-family: 'VT323', monospace !important;
-            letter-spacing: 0.05em;
-        }
-
-        h1 {
-            font-size: 2.5rem !important;
-            text-shadow: 0 0 10px #00ff00;
-        }
-
-        /* CRT Effect */
-        .crt::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 255, 0, 0.05) 0px,
-                rgba(0, 255, 0, 0.05) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        /* Custom Form Elements */
-        input {
-            background: #001100 !important;
-            border: 1px solid #00ff00 !important;
-            color: #00ff00 !important;
-            padding: 0.75rem 1rem !important;
-            border-radius: 0 !important;
-            font-size: 1.1rem;
-        }
-
-        button {
-            background: #002200 !important;
-            border: 1px solid #00ff00 !important;
-            color: #00ff00 !important;
-            padding: 0.8rem 1.5rem !important;
-            transition: all 0.3s ease !important;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            background: #000;
+            color: var(--fu-global-text);
+            font-family: 'Source Code Pro', monospace;
             overflow: hidden;
-            z-index: 1;
         }
 
-        button:hover {
-            background: #004400 !important;
-            box-shadow: 0 0 10px #00ff00 !important;
-        }
-
-        button span {
-            position: relative;
-            z-index: 2;
-        }
-
-        #result {
-            background: #000 !important;
-            border: 1px solid #00ff00 !important;
-            color: #00ff00 !important;
-            font-size: 1rem;
-            line-height: 1.3;
+        .cyber-terminal {
+            background: #001100;
+            border: 2px solid #00ff00;
             padding: 1.5rem;
-            border-width: 2px;
+            box-shadow: 0 0 20px #00ff0033;
+            min-height: 90vh;
+            height: auto;
+            margin: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: height 0.3s ease-in-out;
+        }
+
+        .main-grid {
+            flex: 1;
+            min-height: 0;
+            grid-template-rows: auto 1fr;
+        }
+
+        .content-grid {
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            height: calc(100% - 60px);
+        }
+
+        .fu-grid {
+            display: grid;
+            gap: 1rem;
+            padding: 2rem;
+            height: 100%;
+            grid-template-rows: auto 1fr;
+        }
+
+        .fu-header {
+            font-size: 2rem;
+            text-shadow: 0 0 10px #00ff00;
+            padding: 1rem 0;
+            border-bottom: 2px solid #00ff00;
+        }
+
+        .fu-metric {
+            color: #00ff00;
+            font-size: 1.2rem;
+        }
+
+        .fu-value {
+            color: #00ffff;
+            font-size: 1.3rem;
+            text-shadow: 0 0 8px #00ffff33;
+        }
+
+        .fu-ai-response {
+            padding: 1.5rem;
+            background: #001100;
+            border: 1px solid #00ff0055;
+            animation: fu-glitch 1s infinite;
+        }
+
+        @keyframes fu-glitch {
+            0% { text-shadow: 2px 0 var(--fu-glitch-color-1); }
+            25% { text-shadow: -2px 0 var(--fu-glitch-color-2); }
+            50% { text-shadow: 2px 0 #ffff00; }
+            75% { text-shadow: -2px 0 #ff0000; }
+            100% { text-shadow: 2px 0 #00ff00; }
+        }
+
+        .fu-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            margin: 1rem 0;
+        }
+
+        .fu-ascii {
+            font-family: 'Source Code Pro', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff0080;
             white-space: pre-wrap;
-            word-break: break-word;
-            overflow-wrap: anywhere;
-            hyphens: auto;
-            max-width: 100%;
-            overflow-x: hidden;
+            padding: 1rem;
+            border: 1px solid #00ff0055;
+            margin: 1rem 0;
+        }
+
+        .fu-ascii-art {
             font-family: 'VT323', monospace;
-            letter-spacing: 0.5px;
-            tab-size: 4;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            white-space: pre-wrap;
+            padding: 1.5rem;
+            border: 1px solid #00ff0055;
+            margin: 1rem 0;
+            background: #001100;
+            line-height: 1.2;
+            letter-spacing: 1px;
+            overflow-wrap: break-word;
+            max-height: 70vh;
+            overflow-y: auto;
+            transition: height 0.3s ease;
+        }
+
+        .fu-ai-glitch {
+            animation: fu-glitch 1s infinite;
+            padding: 1rem;
+            border: 1px solid #ff00ff55;
+            margin-top: 1.5rem;
+        }
+
+        .fu-verdict {
+            font-size: 1.5rem;
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+        }
+
+        .fu-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            color: #00ffff;
+        }
+
+        #resultPanel {
+            overflow-y: auto;
+            max-height: 70vh;
+            padding-right: 1rem;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .fu-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
             background: #001100;
         }
 
         ::-webkit-scrollbar-thumb {
             background: #00ff00;
-            border: 1px solid #002200;
+            border-radius: 4px;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #000;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff00aa;
         }
 
-        .container {
-            max-width: 1400px;
-            padding: 2rem;
+        .fu-input-group {
+            margin-bottom: 1.5rem;
         }
 
-        .input-panel {
-            padding: 1.5rem;
-            gap: 1.5rem;
+        .fu-label {
+            display: block;
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 8px #00ffff80;
         }
 
-        .glow-box {
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
-        }
-
-        @keyframes glow {
-            0% { transform: rotate(45deg) translate(-50%, -50%); }
-            100% { transform: rotate(45deg) translate(50%, 50%); }
-        }
-
-        .button-text {
-            position: relative;
-            z-index: 10;
-        }
-
-        @media (max-width: 768px) {
-            #result {
-                font-size: 0.9rem;
-                line-height: 1.2;
-                padding: 1rem;
-            }
-        }
-
-        /* Improve table readability */
-        #result {
-            font-family: 'Source Code Pro', monospace;
-            tab-size: 4;
-        }
-        
-        /* Add subtle grid lines */
-        #result::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
+        .fu-input {
             width: 100%;
-            height: 100%;
-            background-image: linear-gradient(
-                to right,
-                rgba(0, 255, 0, 0.05) 1px,
-                transparent 1px
-            );
-            background-size: 20px 100%;
-            pointer-events: none;
+            background: #001100;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 0.8rem;
+            font-family: 'Source Code Pro', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .fu-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px #00ff0080;
+            border-color: #00ffff;
+        }
+
+        .fu-button-group {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .fu-button {
+            padding: 1rem;
+            border: none;
+            font-family: 'Source Code Pro', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .fu-primary {
+            background: linear-gradient(45deg, #00ff00, #00ffff);
+            color: #001100;
+        }
+
+        .fu-danger {
+            background: linear-gradient(45deg, #ff00ff, #ff0000);
+            color: #ffffff;
+        }
+
+        .fu-pulse {
+            animation: fu-pulse 2s infinite;
+        }
+
+        @keyframes fu-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .input-container {
+            background: #001a00;
+            padding: 1.5rem;
+            border: 1px solid #00ff0055;
+            border-radius: 4px;
+        }
+
+        .fu-input {
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .fu-input::placeholder {
+            color: #00ff0080;
+        }
+
+        .button-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .fu-button {
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fu-primary {
+            background: linear-gradient(145deg, #00ff00 0%, #00cc88 100%);
+            box-shadow: 0 0 15px #00ff0033;
+        }
+
+        .fu-danger {
+            background: linear-gradient(145deg, #ff00ff 0%, #ff0066 100%);
+            box-shadow: 0 0 15px #ff00ff33;
+        }
+
+        .fu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,255,0,0.3);
+        }
+
+        .fu-input:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px #00ffff33;
+        }
+
+        .fu-full-response {
+            color: #00ffff;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #001a00;
+            border: 1px solid #00ff0055;
+            font-family: 'VT323', monospace;
+            line-height: 1.4;
+        }
+
+        .fu-full-response br {
+            display: block;
+            content: "";
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-panel {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 60vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .analysis-content {
+            position: relative;
+            min-height: 300px;
+        }
+
+        .fu-analysis-details {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fu-error {
+            color: #ff0000;
+            padding: 1.5rem;
+            margin: 1rem;
+            border: 2px solid #ff0000;
+            background: #220000;
+            text-shadow: 0 0 10px #ff0000;
         }
     </style>
 </head>
-<body class="bg-black">
-    <div class="container mx-auto p-4 crt">
-        <h1 class="text-2xl mb-4 text-center border-b border-green-500 pb-2">
-            🚀 TOKEN ANALYSIS TERMINAL
-        </h1>
+<body>
+    <div class="cyber-terminal">
+        <div class="fu-header">🚀 CYBERDEX ANALYZER V3.14</div>
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="content-grid">
             <!-- Input Panel -->
-            <div class="md:col-span-1 p-4 border border-green-500">
-                <div class="input-panel glow-box">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block mb-3 text-lg">🔍 PAIR ADDRESS</label>
-                            <input type="text" 
-                                   id="pairAddress" 
-                                   class="w-full text-lg"
-                                   placeholder="solana_pair_address">
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3">
-                            <button class="glow-box" onclick="runAnalysis('v1')">
-                                <span class="button-text">🚀 V1 SCAN</span>
-                            </button>
-                            <button class="glow-box bg-green-900/30" onclick="runAnalysis('v3')">
-                                <span class="button-text">💥 V3 SCAN</span>
-                            </button>
-                        </div>
-                    </div>
+            <div class="input-panel">
+                <div class="fu-input-group">
+                    <label class="fu-label fu-glitch">🔮 PAIR ADDRESS</label>
+                    <input type="text" 
+                           id="pairAddress" 
+                           class="fu-input fu-glitch-bg"
+                           placeholder="SOL_PAIR_ADDR...">
+                </div>
+                <div class="button-grid">
+                    <button class="fu-button fu-primary fu-pulse" onclick="runAnalysis('v1')">
+                        <span class="fu-glitch">🚀 V1 SCAN</span>
+                    </button>
+                    <button class="fu-button fu-danger fu-pulse" onclick="runAnalysis('v3')">
+                        <span class="fu-glitch">💥 V3 ALPHA</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Analysis Panel -->
-            <div class="md:col-span-3 p-4 h-[70vh] overflow-auto">
-                <pre id="result" class="text-sm"></pre>
+            <!-- Unified Analysis Panel -->
+            <div class="analysis-panel" id="resultPanel">
+                <div class="analysis-content" id="analysisContent">
+                    <!-- Dynamic content injected here -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Preline JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@preline/auto-init@1.8.0/dist/auto-init.min.js"></script>
     <script>
         async function runAnalysis(version) {
-            const resultElement = document.getElementById('result');
-            // Use textContent instead of innerHTML
-            resultElement.textContent = 'Analyzing...';
-            
             const pairAddress = document.getElementById('pairAddress').value;
+            const contentDiv = document.getElementById('analysisContent');
             
             try {
+                // Show loading state within content area
+                contentDiv.innerHTML = '<div class="fu-loading">INITIALIZING ANALYSIS MATRIX...</div>';
+
                 const response = await fetch(`/analyze?version=${version}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pairAddress })
                 });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
-                const data = await response.json();
-                // Directly set text content with monospace formatting
-                resultElement.textContent = data.analysis;
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
+
+                if (responseData.status === 'success' && responseData.analysis) {
+                    renderAnalysis(responseData.analysis);
+                } else if (responseData.analysis) {
+                    renderAnalysis(responseData.analysis);
+                } else {
+                    throw new Error(responseData.message || 'Invalid analysis data');
+                }
+                
             } catch (error) {
-                resultElement.textContent = 'Error: ' + error.message;
+                console.error('Analysis error:', error);
+                contentDiv.innerHTML = `<div class="fu-error">❌ ERROR: ${error.message}</div>`;
             }
         }
+
+        function renderAnalysis(analysisData) {
+            const contentDiv = document.getElementById('analysisContent');
+            if (!contentDiv) {
+                console.error('Analysis content container not found');
+                return;
+            }
+
+            // Clear previous content
+            contentDiv.innerHTML = '';
+
+            // Build and insert new analysis HTML
+            const analysisHTML = `
+                <div class="cyber-terminal-inner">
+                    <div class="fu-header">${analysisData.symbol} ${analysisData.verdict.includes('ALPHA') ? 'ALPHA' : 'SCAN'}</div>
+                    <pre class="fu-ascii-art">${analysisData.asciiAnalysis}</pre>
+                    <div class="fu-divider"></div>
+                    <div class="fu-analysis-details">
+                        <div class="fu-verdict">${analysisData.verdict}</div>
+                        <div class="fu-full-response">
+                            ${analysisData.asciiAnalysis.split('\n').slice(-5).join('<br>')}
+                        </div>
+                        <div class="fu-stats">
+                            <span class="fu-confidence">CONFIDENCE: ${'★'.repeat(analysisData.confidence)}</span>
+                            <span class="fu-target">TARGET: ${analysisData.target}</span>
+                        </div>
+                    </div>
+                </div>`;
+
+            contentDiv.innerHTML = analysisHTML;
+            console.log('Analysis rendered successfully');
+            
+            // Handle dynamic height after rendering
+            const asciiArt = contentDiv.querySelector('.fu-ascii-art');
+            const resultPanel = document.getElementById('resultPanel');
+            
+            if (asciiArt && resultPanel) {
+                const contentHeight = asciiArt.scrollHeight + 300;
+                resultPanel.style.height = `${Math.min(contentHeight, window.innerHeight * 0.8)}px`;
+            }
+        }
+
+        // Update resize handler
+        window.addEventListener('resize', () => {
+            const analysisPanel = document.getElementById('resultPanel');
+            const asciiArt = document.querySelector('.fu-ascii-art');
+            
+            if (analysisPanel && asciiArt) {
+                const contentHeight = asciiArt.scrollHeight + 300;
+                analysisPanel.style.height = `${Math.min(contentHeight, window.innerHeight * 0.8)}px`;
+            }
+        });
     </script>
 </body>
 </html> 
